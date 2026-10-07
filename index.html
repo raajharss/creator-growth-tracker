@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Creator Content Calendar & Growth Tracker | Excel & Google Sheets</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              200: '#ddd6fe',
+              300: '#c4b5fd',
+              400: '#a78bfa',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              800: '#5b21b6',
+              900: '#4c1d95',
+            },
+            accent: {
+              emerald: '#10b981',
+              amber: '#f59e0b',
+              rose: '#f43f5e',
+            }
+          },
+          keyframes: {
+            pulseGlow: {
+              '0%, 100%': { opacity: '0.6', transform: 'scale(1)' },
+              '50%': { opacity: '0.9', transform: 'scale(1.05)' },
+            },
+            floatSlow: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' },
+            }
+          },
+          animation: {
+            'pulse-glow': 'pulseGlow 4s ease-in-out infinite',
+            'float': 'floatSlow 6s ease-in-out infinite',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom styling for backdrop blurs & glows */
+    .glass-card {
+      background: rgba(18, 18, 28, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card-light {
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .glow-gradient {
+      background: radial-gradient(circle, rgba(124, 58, 237, 0.22) 0%, rgba(15, 13, 29, 0) 70%);
+    }
+    .text-gradient {
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .badge-gradient {
+      background: linear-gradient(90deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
+    }
+  </style>
+</head>
+<body class="bg-[#0b0a12] text-slate-100 font-sans antialiased selection:bg-brand-600 selection:text-white pb-24 md:pb-12">
+
+  <!-- URGENCY & FOMO STICKY NOTIFICATION BAR -->
+  <aside aria-label="Limited Time Offer" class="sticky top-0 z-50 bg-gradient-to-r from-brand-900 via-indigo-950 to-purple-950 border-b border-purple-500/20 px-3 py-2 text-xs md:text-sm shadow-xl">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center space-x-2">
+        <span class="flex h-2.5 w-2.5 relative">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-rose opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-accent-rose"></span>
+        </span>
+        <span class="font-semibold text-rose-300 uppercase tracking-wider text-[11px] md:text-xs">EARLY LAUNCH ACCESS</span>
+        <span class="hidden sm:inline text-purple-200/60">•</span>
+        <span class="text-white font-medium">Special Launch Price: <span class="text-emerald-400 font-bold">₹399</span> <span class="line-through text-slate-400 text-xs">₹699</span></span>
+      </div>
+
+      <div class="flex items-center space-x-3 text-xs">
+        <div class="hidden md:flex items-center space-x-1.5 bg-purple-900/60 border border-purple-400/30 px-2.5 py-1 rounded-full">
+          <span class="text-purple-300">⚡ Only</span>
+          <span id="spots-left-badge" class="font-bold text-amber-300">142</span>
+          <span class="text-purple-300">of 1,000 spots remaining!</span>
+        </div>
+        <div class="flex items-center space-x-1 bg-black/40 px-2.5 py-1 rounded-md border border-white/10 font-mono">
+          <span class="text-slate-400">Ends in:</span>
+          <span id="timer-hours" class="font-bold text-white">04</span>:
+          <span id="timer-minutes" class="font-bold text-white">18</span>:
+          <span id="timer-seconds" class="font-bold text-amber-400">45</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- NAVBAR -->
+  <header class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <div class="relative">
+        <img src="https://i.postimg.cc/kM0JvcR5/Logo.png" alt="@harss.raaj" class="w-11 h-11 rounded-full object-cover border-2 border-brand-500/80 shadow-lg shadow-brand-500/25 ring-2 ring-purple-500/30">
+        <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-[#0b0a12] rounded-full"></span>
+      </div>
+      <div>
+        <span class="text-lg font-extrabold tracking-tight text-white flex items-center gap-1.5">
+          @harss.raaj <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 font-mono font-medium border border-brand-500/30">Official</span>
+        </span>
+        <p class="text-[11px] text-slate-400 hidden sm:block">Content Calendar & Performance Growth Tracker</p>
+      </div>
+    </div>
+
+    <div class="flex items-center space-x-4">
+      <div class="hidden lg:flex items-center space-x-6 text-sm text-slate-300 font-medium">
+        <a href="#video-tour" class="hover:text-white transition flex items-center gap-1.5 text-brand-300 font-semibold"><span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span> Video Tour</a>
+        <a href="#features" class="hover:text-white transition">What's Inside</a>
+        <a href="#preview" class="hover:text-white transition">Spreadsheet Demo</a>
+        <a href="#starter-ideas" class="hover:text-white transition">30 Starter Ideas</a>
+        <a href="#faq" class="hover:text-white transition">FAQ</a>
+      </div>
+      <a href="https://zorcha.link/harssraaj/products/content-calendar-growth-tracker-for-creators-excel-google-sh" 
+         target="_blank" 
+         rel="noopener noreferrer"
+         class="relative group overflow-hidden rounded-xl p-px font-semibold text-xs sm:text-sm">
+        <span class="absolute inset-0 bg-gradient-to-r from-brand-500 via-pink-500 to-amber-500 transition-all duration-300 group-hover:opacity-90"></span>
+        <span class="relative flex items-center space-x-2 rounded-xl bg-slate-950 px-4 py-2 transition-all duration-200 group-hover:bg-opacity-0">
+          <span>Claim ₹399 Launch Price</span>
+          <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </span>
+      </a>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="relative pt-8 pb-16 md:pt-14 md:pb-24 overflow-hidden">
+    <!-- Ambient Glow background -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[900px] md:h-[700px] glow-gradient pointer-events-none rounded-full blur-3xl opacity-70"></div>
+    <div class="absolute top-10 right-10 w-72 h-72 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative text-center">
+      
+      <!-- Top Pill -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-brand-500/30 text-brand-300 text-xs font-semibold mb-6 shadow-md backdrop-blur-md">
+        <span class="flex h-2 w-2 rounded-full bg-brand-400 animate-pulse"></span>
+        <span>Built for Reels, YouTube, LinkedIn & X Creators</span>
+        <span class="bg-brand-500/30 text-[10px] text-white px-2 py-0.5 rounded font-mono">100% NO CODE</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6">
+        Stop Guessing Content. <br class="hidden sm:inline" />
+        <span class="text-gradient">Track Growth & Post Like A Top 1% Creator.</span>
+      <!-- DEDICATED VIDEO INTRO EMBED SECTION -->
+      <div id="video-tour" class="max-w-3xl mx-auto mb-10 text-left">
+        <div class="relative rounded-2xl p-1 bg-gradient-to-r from-brand-600 via-pink-500 to-amber-500 shadow-2xl shadow-brand-900/40">
+          <div class="bg-slate-950/95 rounded-[14px] p-4 sm:p-5">
+            <div class="flex items-center justify-between mb-3 border-b border-slate-800 pb-3">
+              <div class="flex items-center space-x-3">
+                <img src="https://i.postimg.cc/kM0JvcR5/Logo.png" alt="@harss.raaj" class="w-8 h-8 rounded-full object-cover border border-brand-500">
+                <div>
+                  <h3 class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
+                    Quick Video Breakdown by @harss.raaj
+                    <span class="px-2 py-0.5 rounded-full text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/30">WATCH WALKTHROUGH</span>
+                  </h3>
+                  <p class="text-[11px] text-slate-400">See exactly how this spreadsheet tool organizes your growth and content pipeline</p>
+                </div>
+              </div>
+              <span class="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded-md border border-amber-400/20">
+                🎥 Video Tour
+              </span>
+            </div>
+
+            <div class="relative aspect-video w-full rounded-xl overflow-hidden shadow-2xl border border-slate-800 bg-black">
+              <iframe 
+                class="w-full h-full" 
+                src="https://www.youtube.com/embed/ctdgLh7w0Qg" 
+                title="Product Breakdown by @harss.raaj" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen>
+              </iframe>
+            </div>
+
+            <div class="mt-3 flex flex-wrap items-center justify-between text-[11px] text-slate-400 gap-2">
+              <span class="flex items-center gap-1.5 text-emerald-400 font-medium">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                No fluff. Real spreadsheet walkthrough and feature tour.
+              </span>
+              <div class="flex items-center gap-3">
+                <a href="https://youtu.be/ctdgLh7w0Qg" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-white flex items-center gap-1 transition">
+                  <svg class="w-3.5 h-3.5 text-rose-400" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                  Watch on YouTube
+                </a>
+                <a href="https://zorcha.link/harssraaj/products/content-calendar-growth-tracker-for-creators-excel-google-sh" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:text-brand-300 font-semibold underline">
+                  Skip to Instant Access (₹399) →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOMO Progress Gauge (First 1000 Buyers) -->
+      <div class="max-w-md mx-auto mb-8 bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-xl text-left">
+        <div class="flex items-center justify-between text-xs mb-2">
+          <span class="text-slate-300 font-medium flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"/></svg>
+            Launch Deal Claimed
+          </span>
+          <span class="font-mono text-emerald-400 font-bold"><span id="buyers-count">858</span> / 1,000 Slots Sold</span>
+        </div>
+        <!-- Progress Bar -->
+        <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden p-0.5">
+          <div id="progress-bar-fill" class="bg-gradient-to-r from-brand-500 via-pink-500 to-amber-400 h-full rounded-full transition-all duration-1000" style="width: 85.8%;"></div>
+        </div>
+        <p class="text-[11px] text-slate-400 mt-2 flex items-center justify-between">
+          <span>⚡ Price increases to <span class="text-slate-200 font-semibold">₹699</span> once all 1,000 slots fill up.</span>
+          <span class="text-rose-400 font-semibold font-mono">86% Filled</span>
+        </p>
+      </div>
+
+      <!-- CTA Action Button Block -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+        <a href="https://zorcha.link/harssraaj/products/content-calendar-growth-tracker-for-creators-excel-google-sh"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-brand-600 via-purple-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-bold text-lg shadow-xl shadow-brand-700/30 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center space-x-3 group">
+          <span>Get Instant Access at ₹399</span>
+          <span class="text-brand-200 line-through text-sm font-normal">₹699</span>
+          <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+        </a>
+
+        <a href="#preview" class="w-full sm:w-auto px-6 py-4 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 font-semibold text-sm border border-slate-700/80 transition flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          <span>Explore Template Demo</span>
+        </a>
+      </div>
+
+      <!-- Trust Badges & Guarantee Row -->
+      <div class="flex flex-wrap items-center justify-center gap-y-2 gap-x-6 text-xs text-slate-400">
+        <div class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          <span>Instant One-Click Google Sheets & Excel Copy</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <span class="text-slate-300 font-medium">100% Practical & Tested System</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <span>Lifetime Access & Free Updates</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- INTERACTIVE PREVIEW SHOWCASE -->
+  <section id="preview" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
+    <div class="glass-card rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl relative border border-slate-700/60 overflow-hidden">
+      
+      <!-- Window controls & Tab bar -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-slate-800 gap-4">
+        <div class="flex items-center space-x-2">
+          <div class="w-3 h-3 rounded-full bg-rose-500"></div>
+          <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+          <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+          <span class="ml-2 font-mono text-xs text-slate-400">Content_Calendar_Tracker_by_@harss.raaj.xlsx [Ready to Clone]</span>
+        </div>
+
+        <!-- Interactive Switcher Tabs -->
+        <div class="flex flex-wrap gap-2" id="tab-buttons">
+          <button onclick="switchTab('dashboard')" id="btn-tab-dashboard" class="tab-btn active px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-brand-600 text-white transition">
+            📊 Growth Analytics Hub
+          </button>
+          <button onclick="switchTab('calendar')" id="btn-tab-calendar" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white bg-slate-900 transition">
+            📅 Multi-Platform Calendar
+          </button>
+          <button onclick="switchTab('starter')" id="btn-tab-starter" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white bg-slate-900 transition">
+            💡 30 Starter Content Ideas
+          </button>
+          <button onclick="switchTab('funnel')" id="btn-tab-funnel" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white bg-slate-900 transition">
+            🎯 Hook & Retention Matrix
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 1: GROWTH ANALYTICS HUB -->
+      <div id="tab-dashboard" class="tab-content pt-6">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400">Avg. 30-Day Growth</span>
+            <div class="text-xl sm:text-2xl font-bold text-emerald-400 mt-1 flex items-center">
+              +318.4%
+              <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            </div>
+            <span class="text-[10px] text-slate-500">Automated KPI calculation</span>
+          </div>
+
+          <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400">Viral Coefficient</span>
+            <div class="text-xl sm:text-2xl font-bold text-purple-400 mt-1">4.2x</div>
+            <span class="text-[10px] text-slate-500">Shares-to-Saves formula</span>
+          </div>
+
+          <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400">Posting Consistency</span>
+            <div class="text-xl sm:text-2xl font-bold text-amber-400 mt-1">28 / 30 Days</div>
+            <span class="text-[10px] text-slate-500">Streak tracker with heatmaps</span>
+          </div>
+
+          <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+            <span class="text-xs text-slate-400">Estimated Deal Value</span>
+            <div class="text-xl sm:text-2xl font-bold text-white mt-1">₹84,500</div>
+            <span class="text-[10px] text-slate-500">Sponsorship rate estimator</span>
+          </div>
+        </div>
+
+        <!-- Simulated Spreadsheet Row Data -->
+        <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/70">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-900 text-slate-400 uppercase font-mono text-[11px] border-b border-slate-800">
+              <tr>
+                <th class="p-3">Platform</th>
+                <th class="p-3">Content Pillar</th>
+                <th class="p-3">Hook Type</th>
+                <th class="p-3">Impressions</th>
+                <th class="p-3">Engagement Rate</th>
+                <th class="p-3">Status</th>
+                <th class="p-3">Action</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60 font-mono">
+              <tr class="hover:bg-slate-900/40 transition">
+                <td class="p-3 font-semibold text-pink-400 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-pink-500"></span> Instagram Reels
+                </td>
+                <td class="p-3 text-slate-300">Case Study Breakdown</td>
+                <td class="p-3 text-amber-300">"The 3 mistakes costing you..."</td>
+                <td class="p-3 font-bold text-white">142,800</td>
+                <td class="p-3 text-emerald-400 font-bold">8.4% (Viral)</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Published</span></td>
+                <td class="p-3 text-brand-400">Repurpose -> X</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition">
+                <td class="p-3 font-semibold text-rose-400 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-rose-500"></span> YouTube Shorts
+                </td>
+                <td class="p-3 text-slate-300">Tool Comparison</td>
+                <td class="p-3 text-amber-300">"Stop using X, use this free..."</td>
+                <td class="p-3 font-bold text-white">89,200</td>
+                <td class="p-3 text-emerald-400 font-bold">6.1% (High)</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Published</span></td>
+                <td class="p-3 text-brand-400">Repurpose -> Reel</td>
+              </tr>
+              <tr class="hover:bg-slate-900/40 transition">
+                <td class="p-3 font-semibold text-blue-400 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-blue-500"></span> LinkedIn Carousel
+                </td>
+                <td class="p-3 text-slate-300">Step-by-Step Blueprint</td>
+                <td class="p-3 text-amber-300">"How I scaled in 90 days..."</td>
+                <td class="p-3 font-bold text-white">34,500</td>
+                <td class="p-3 text-emerald-400 font-bold">5.8% (High)</td>
+                <td class="p-3"><span class="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30">Scheduled</span></td>
+                <td class="p-3 text-slate-400">Queued for 6 PM</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 2: MULTI-PLATFORM CALENDAR -->
+      <div id="tab-calendar" class="tab-content pt-6 hidden">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div class="p-4 rounded-xl bg-slate-900/70 border border-slate-800">
+            <h4 class="font-bold text-white mb-2 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-brand-500"></span> 365-Day Visual Schedule
+            </h4>
+            <p class="text-xs text-slate-300">Pre-built color-coded filters for Instagram, YouTube, LinkedIn, X, TikTok, and Newsletters. Keep all your channels organized in a single unified view.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-900/70 border border-slate-800">
+            <h4 class="font-bold text-white mb-2 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Automated Status Tracker
+            </h4>
+            <p class="text-xs text-slate-300">One-click dropdown status from "Ideation" to "Scripted", "Recorded", "Edited", and "Scheduled". Never drop the ball on a brand deliverable.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-900/70 border border-slate-800">
+            <h4 class="font-bold text-white mb-2 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Asset Storage Links
+            </h4>
+            <p class="text-xs text-slate-300">Directly link Drive, Canva, and CapCut assets into each row so your editors or teammates have zero friction.</p>
+          </div>
+        </div>
+        <div class="p-4 bg-purple-950/30 border border-purple-800/40 rounded-xl text-center">
+          <p class="text-xs text-purple-200">✨ Fully compatible with both <span class="text-white font-bold">Google Sheets</span> (access anywhere on your phone) and <span class="text-white font-bold">Microsoft Excel (.xlsx)</span> with native formulas and zero external plugins required.</p>
+        </div>
+      </div>
+
+      <!-- TAB 3: 30 STARTER VIRAL IDEAS -->
+      <div id="tab-starter" class="tab-content pt-6 hidden">
+        <div class="bg-brand-950/40 border border-brand-800/50 p-4 rounded-xl mb-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-bold text-white flex items-center gap-2">
+              🎁 30 Starter Content Ideas by @harss.raaj (Included in Tool)
+            </span>
+            <span class="px-2 py-0.5 rounded text-[10px] bg-brand-500/20 text-brand-300 font-mono">Zero Creator Block</span>
+          </div>
+          <p class="text-xs text-slate-300">Specially built for beginners who don't know what to post on Day 1. Here is a preview of the 30 starter prompt blueprints included inside:</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs font-mono">
+          <div class="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
+            <span class="text-amber-400 font-bold block mb-1">🔥 Starter Idea #01: The "Unpopular Truth"</span>
+            <span class="text-slate-300">"Everyone tells you to do [Common Advice]. Here's why that's keeping you stuck in 2026..."</span>
+          </div>
+          <div class="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
+            <span class="text-emerald-400 font-bold block mb-1">📈 Starter Idea #07: The "Zero to Hero" Breakdown</span>
+            <span class="text-slate-300">"How I went from 0 to [Milestone] in [Timeframe] with zero ad spend and just 1 simple tool..."</span>
+          </div>
+          <div class="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
+            <span class="text-purple-400 font-bold block mb-1">🛠️ Starter Idea #14: The "Hidden Free Tool"</span>
+            <span class="text-slate-300">"99% of people don't know this website exists, but it replaces a whole team of editors..."</span>
+          </div>
+          <div class="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
+            <span class="text-rose-400 font-bold block mb-1">⏳ Starter Idea #22: The "Day 1 Comeback Plan"</span>
+            <span class="text-slate-300">"If I lost all my followers today, here is the exact 5-day comeback schedule I would execute..."</span>
+          </div>
+        </div>
+        <div class="mt-4 text-center">
+          <span class="text-xs text-slate-400">+ 26 more actionable starter prompts categorized across Reels, Shorts, Carousels, and X/LinkedIn threads!</span>
+        </div>
+      </div>
+
+      <!-- TAB 4: HOOK & RETENTION MATRIX -->
+      <div id="tab-funnel" class="tab-content pt-6 hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+            <h4 class="font-bold text-white text-sm mb-2">⚡ 3-Second Hook Retention Grader</h4>
+            <p class="text-xs text-slate-300 mb-3">Our proprietary scoring formula grades your title and first 3 seconds before you hit record. It flags weak hooks, lack of curiosity gap, and passive phrasing.</p>
+            <div class="p-3 rounded-lg bg-black/50 border border-slate-700 font-mono text-[11px] text-emerald-400">
+              Score: 92/100 • Predicted Watch-Through: 68% • High Shareability
+            </div>
+          </div>
+          <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800">
+            <h4 class="font-bold text-white text-sm mb-2">🔄 1-Click Repurposing Matrix</h4>
+            <p class="text-xs text-slate-300 mb-3">Turn 1 Long-Form video or newsletter into: 3 Short-form Reels/Shorts, 2 LinkedIn carousels, and 5 X tweets automatically planned out in your pipeline.</p>
+            <div class="p-3 rounded-lg bg-black/50 border border-slate-700 font-mono text-[11px] text-purple-300">
+              1 Master Asset = 10 Distribution Nodes (3.3x Weekly Reach)
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PAIN VS GAIN SECTION -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center max-w-3xl mx-auto mb-14">
+      <h2 class="text-xs font-bold text-brand-400 uppercase tracking-widest mb-2 font-mono">The Creator Reality Check</h2>
+      <p class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Are You Posting Into The Void, Or Engineering Your Growth?</p>
+      <p class="text-sm sm:text-base text-slate-400 mt-3">Most creators quit within 3 months not because their content is bad, but because they have zero system to track what actually converts.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      
+      <!-- WITHOUT THIS TRACKER -->
+      <div class="p-6 sm:p-8 rounded-2xl bg-rose-950/20 border border-rose-900/40 relative">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 font-bold text-xs mb-6 border border-rose-500/30">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          WITHOUT A SYSTEM (CHAOS & BURNOUT)
+        </div>
+
+        <ul class="space-y-4 text-sm text-slate-300">
+          <li class="flex items-start gap-3">
+            <span class="text-rose-400 font-bold text-lg leading-none">✕</span>
+            <span><strong>Waking up with zero ideas:</strong> Staring at your phone for 45 minutes wondering what to post today.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-rose-400 font-bold text-lg leading-none">✕</span>
+            <span><strong>Disorganized Notes apps:</strong> Half-baked hooks scattered across Apple Notes, WhatsApp messages to self, and screenshots.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-rose-400 font-bold text-lg leading-none">✕</span>
+            <span><strong>Vanity metric trap:</strong> Obsessing over likes without tracking which posts drive followers, saves, and revenue.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-rose-400 font-bold text-lg leading-none">✕</span>
+            <span><strong>Inconsistent posting gaps:</strong> Disappearing for two weeks, killing algorithm momentum and restart from square one.</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- WITH THIS SYSTEM -->
+      <div class="p-6 sm:p-8 rounded-2xl bg-brand-950/30 border border-brand-600/50 shadow-xl shadow-brand-900/20 relative">
+        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-xs mb-6 border border-emerald-500/30">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          WITH CREATOR CALENDAR & GROWTH TRACKER
+        </div>
+
+        <ul class="space-y-4 text-sm text-slate-200">
+          <li class="flex items-start gap-3">
+            <span class="text-emerald-400 font-bold text-lg leading-none">✓</span>
+            <span><strong>30 Days Planned in 2 Hours:</strong> Open the spreadsheet, pick from 30 tested starter hooks, and schedule your entire month.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-emerald-400 font-bold text-lg leading-none">✓</span>
+            <span><strong>Clear Growth Diagnostics:</strong> Instantly pinpoint which format (Carousels vs Reels vs Shorts) gives you the highest ROI.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-emerald-400 font-bold text-lg leading-none">✓</span>
+            <span><strong>Built-in Gamified Streaks:</strong> Stay accountable with visual consistency scorecards that motivate you every day.</span>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="text-emerald-400 font-bold text-lg leading-none">✓</span>
+            <span><strong>Zero Expensive Subscriptions:</strong> No $49/month recurring tools like Notion or Buffer. Pay ₹399 once and keep it forever.</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- WHAT YOU GET SECTION -->
+  <section id="features" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center max-w-2xl mx-auto mb-16">
+      <span class="px-3 py-1 rounded-full bg-brand-500/10 text-brand-300 text-xs font-mono font-semibold border border-brand-500/20">ACCURATE & ZERO GUESSWORK</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white mt-3">What's Inside The Exact Tool</h2>
+      <p class="text-sm sm:text-base text-slate-400 mt-2">Tested and verified in the official <strong>Content_Calendar_Tracker.xlsx</strong> template.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Feature 1 -->
+      <div class="glass-card p-6 rounded-2xl hover:border-brand-500/40 transition group">
+        <div class="w-12 h-12 rounded-xl bg-brand-600/20 border border-brand-500/30 flex items-center justify-center text-brand-400 mb-5 group-hover:scale-110 transition-transform">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">1. 365-Day Master Content Pipeline</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Schedule and organize every single post across Instagram Reels, YouTube Shorts, LinkedIn, X, and Newsletters. Color-coded status updates keep your workflow smooth.
+        </p>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="glass-card p-6 rounded-2xl hover:border-brand-500/40 transition group">
+        <div class="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-5 group-hover:scale-110 transition-transform">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">2. Creator Performance & Growth Tracker</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Log impressions, reach, profile visits, follower velocity, and saves. Formulas automatically calculate your genuine engagement rate and best performing pillars.
+        </p>
+      </div>
+
+      <!-- Feature 3 -->
+      <div id="starter-ideas" class="glass-card p-6 rounded-2xl hover:border-brand-500/40 transition group border-brand-500/30">
+        <div class="w-12 h-12 rounded-xl bg-amber-600/20 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-5 group-hover:scale-110 transition-transform">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">3. 30 Starter Ideas For Beginners</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Pre-loaded starter prompt blueprints designed to help new creators post their first 30 days of high-retention content without suffering writer's block.
+        </p>
+      </div>
+
+      <!-- Feature 4 -->
+      <div class="glass-card p-6 rounded-2xl hover:border-brand-500/40 transition group">
+        <div class="w-12 h-12 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-5 group-hover:scale-110 transition-transform">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">4. Sponsorship & Deliverable Tracker</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Keep track of brand partnerships, contract deadlines, payment statuses, and revenue milestones. Turn your creator channel into a dependable business.
+        </p>
+      </div>
+
+      <!-- Feature 5 -->
+      <div class="glass-card p-6 rounded-2xl hover:border-brand-500/40 transition group">
+        <div class="w-12 h-12 rounded-xl bg-cyan-600/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-5 group-hover:scale-110 transition-transform">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">5. Multi-Platform Repurposing Matrix</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Turn 1 core video idea into 5 distinct platform assets (Reels, Shorts, LinkedIn, X, Stories) with direct checklists so you maximize reach with zero extra work.
+        </p>
+      </div>
+
+      <!-- Feature 6 -->
+      <div class="glass-card p-6 rounded-2xl hover:border-brand-500/40 transition group">
+        <div class="w-12 h-12 rounded-xl bg-pink-600/20 border border-pink-500/30 flex items-center justify-center text-pink-400 mb-5 group-hover:scale-110 transition-transform">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">6. 100% Native Google Sheets & Excel</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Works seamlessly on your phone, laptop, and iPad. Zero complicated software, no subscription fees, and no third-party plugins to install.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ABOUT THE CREATOR SECTION -->
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div class="glass-card rounded-2xl p-6 sm:p-8 border border-brand-500/30 flex flex-col sm:flex-row items-center gap-6">
+      <img src="https://i.postimg.cc/kM0JvcR5/Logo.png" alt="@harss.raaj" class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border-2 border-brand-500 shadow-xl shrink-0">
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <h3 class="text-lg sm:text-xl font-bold text-white">Hey, I'm @harss.raaj 👋</h3>
+          <span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold">Creator & Builder</span>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-300 leading-relaxed mb-3">
+          I built this exact spreadsheet system because I was tired of messy notes, forgetting post dates, and having no idea which content actually gained me real followers. I packed it with the exact tracking formulas I use daily, plus <strong>30 proven starter ideas</strong> so you never face creator's block.
+        </p>
+        <div class="flex items-center gap-4 text-xs font-mono text-brand-300">
+          <span>⚡ 100% Tested System</span>
+          <span>•</span>
+          <span>📈 Designed for 2026 Algorithms</span>
+          <span>•</span>
+          <span>🤝 Direct Support</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERACTIVE ROI / TIME SAVER CALCULATOR -->
+  <section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="glass-card rounded-2xl p-6 sm:p-8 border border-brand-500/30 relative">
+      <div class="text-center mb-6">
+        <h3 class="text-xl sm:text-2xl font-bold text-white">Calculate Your Consistency & Time ROI</h3>
+        <p class="text-xs sm:text-sm text-slate-400 mt-1">See how much time and money you save every month by having an organized pipeline.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>Hours spent weekly overthinking what to post:</span>
+              <span id="hours-val" class="font-bold text-brand-400">6 Hours</span>
+            </div>
+            <input type="range" id="hours-input" min="2" max="20" value="6" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500" oninput="updateCalculator()">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-xs text-slate-300 mb-1">
+              <span>Your estimated hourly creator value:</span>
+              <span id="rate-val" class="font-bold text-emerald-400">₹800 / hr</span>
+            </div>
+            <input type="range" id="rate-input" min="300" max="3000" step="100" value="800" class="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500" oninput="updateCalculator()">
+          </div>
+        </div>
+
+        <div class="bg-slate-950/80 p-5 rounded-xl border border-slate-800 text-center">
+          <span class="text-xs text-slate-400 uppercase tracking-wider font-mono">Monthly Wasted Creator Value</span>
+          <div id="wasted-val" class="text-3xl font-extrabold text-rose-400 my-2">₹19,200</div>
+          <p class="text-xs text-slate-300">
+            Fix your system once for just <strong class="text-emerald-400">₹399</strong> and save over <strong id="hours-saved" class="text-white">18+ hours</strong> every month.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING & FOMO GUARANTEE SECTION -->
+  <section id="pricing" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="relative rounded-3xl p-1 bg-gradient-to-b from-brand-500 via-purple-600 to-indigo-800 shadow-2xl shadow-brand-900/40">
+      
+      <div class="bg-slate-950 rounded-[22px] p-6 sm:p-10 text-center relative overflow-hidden">
+        
+        <!-- Top Badge -->
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-400/40 text-xs font-bold uppercase tracking-wider mb-6">
+          <span class="flex h-2 w-2 rounded-full bg-accent-amber animate-ping"></span>
+          <span>LAUNCH SPECIAL • FIRST 1,000 COPIES ONLY</span>
+        </div>
+
+        <h3 class="text-3xl sm:text-5xl font-black text-white tracking-tight mb-2">
+          Ready To Explode Your Creator Growth?
+        </h3>
+        <p class="text-sm sm:text-base text-slate-300 max-w-xl mx-auto mb-8">
+          Get the complete, battle-tested Content Calendar, Growth Analytics Engine, and 30 Starter Viral Hooks.
+        </p>
+
+        <!-- Pricing Numbers -->
+        <div class="flex items-center justify-center gap-3 mb-4">
+          <span class="text-5xl sm:text-6xl font-extrabold text-white tracking-tight">₹399</span>
+          <div class="text-left">
+            <span class="line-through text-slate-500 text-lg sm:text-xl font-semibold">₹699</span>
+            <span class="block text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">SAVE 43% TODAY</span>
+          </div>
+        </div>
+
+        <p class="text-xs text-amber-300 font-mono mb-8">
+          ⚠️ Price locks to ₹699 after the remaining <span id="spots-left-pricing" class="font-bold underline">142 slots</span> are claimed.
+        </p>
+
+        <!-- Checklist of Inclusions -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-left max-w-xl mx-auto mb-8 text-xs sm:text-sm text-slate-200">
+          <div class="flex items-center space-x-2.5">
+            <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>365-Day Master Content Calendar Pipeline</span>
+          </div>
+          <div class="flex items-center space-x-2.5">
+            <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Automated Performance & Growth Scorecard</span>
+          </div>
+          <div class="flex items-center space-x-2.5">
+            <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span><strong>Included:</strong> 30 Starter Content Ideas by @harss.raaj</span>
+          </div>
+          <div class="flex items-center space-x-2.5">
+            <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Both Google Sheets & Excel (.xlsx) Files</span>
+          </div>
+          <div class="flex items-center space-x-2.5">
+            <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Sponsorship & Invoicing Tracker Included</span>
+          </div>
+          <div class="flex items-center space-x-2.5">
+            <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            <span>Lifetime Ownership & No Subscriptions</span>
+          </div>
+        </div>
+
+        <!-- Big Primary CTA -->
+        <a href="https://zorcha.link/harssraaj/products/content-calendar-growth-tracker-for-creators-excel-google-sh"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="inline-flex w-full sm:w-auto px-10 py-5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-brand-600 hover:from-emerald-400 hover:to-brand-500 text-slate-950 font-black text-lg sm:text-xl shadow-2xl shadow-emerald-500/30 transition transform hover:-translate-y-1 active:translate-y-0 items-center justify-center gap-3">
+          <span>CLAIM YOUR COPY FOR ₹399</span>
+          <svg class="w-6 h-6 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </a>
+
+        <div class="mt-4 flex items-center justify-center space-x-3 text-xs text-slate-400">
+          <span class="flex items-center gap-1">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            256-Bit Secure Checkout via Zorcha
+          </span>
+          <span>•</span>
+          <span>Instant Download Email Delivery</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ ACCORDION -->
+  <section id="faq" class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="text-center mb-12">
+      <span class="text-xs font-bold text-brand-400 uppercase tracking-wider font-mono">HAVE QUESTIONS?</span>
+      <h2 class="text-2xl sm:text-4xl font-extrabold text-white mt-2">Frequently Asked Questions</h2>
+    </div>
+
+    <div class="space-y-3">
+      <!-- FAQ 1 -->
+      <div class="rounded-xl bg-slate-900/60 border border-slate-800 overflow-hidden">
+        <button onclick="toggleFaq(1)" class="w-full px-5 py-4 text-left flex justify-between items-center text-sm font-semibold text-white focus:outline-none">
+          <span>Do I need to be an expert in Excel or Google Sheets?</span>
+          <svg id="faq-icon-1" class="w-4 h-4 text-slate-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="faq-ans-1" class="px-5 pb-4 text-xs sm:text-sm text-slate-300 hidden leading-relaxed">
+          Not at all! Everything is pre-configured with dropdowns, color formatting, and automated calculations. You just need to type in your post topic, pick options from dropdown menus, and let the sheet handle the metrics.
+        </div>
+      </div>
+
+      <!-- FAQ 2 -->
+      <div class="rounded-xl bg-slate-900/60 border border-slate-800 overflow-hidden">
+        <button onclick="toggleFaq(2)" class="w-full px-5 py-4 text-left flex justify-between items-center text-sm font-semibold text-white focus:outline-none">
+          <span>How do I get access after completing the ₹399 payment?</span>
+          <svg id="faq-icon-2" class="w-4 h-4 text-slate-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="faq-ans-2" class="px-5 pb-4 text-xs sm:text-sm text-slate-300 hidden leading-relaxed">
+          Immediately after checkout on Zorcha, you will be redirected to the download hub and receive an instant email receipt containing your 1-click Google Sheets copy link and downloadable Microsoft Excel (.xlsx) file.
+        </div>
+      </div>
+
+      <!-- FAQ 3 -->
+      <div class="rounded-xl bg-slate-900/60 border border-slate-800 overflow-hidden">
+        <button onclick="toggleFaq(3)" class="w-full px-5 py-4 text-left flex justify-between items-center text-sm font-semibold text-white focus:outline-none">
+          <span>Are the 30 starter ideas suitable for my specific niche?</span>
+          <svg id="faq-icon-3" class="w-4 h-4 text-slate-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="faq-ans-3" class="px-5 pb-4 text-xs sm:text-sm text-slate-300 hidden leading-relaxed">
+          Yes! The 30 starter ideas use psychology-backed frameworks (curiosity gap, controversial takes, tutorial breakdowns, myth busting, and transformation stories) that work seamlessly for tech, fitness, marketing, finance, lifestyle, design, and solopreneurship.
+        </div>
+      </div>
+
+      <!-- FAQ 4 -->
+      <div class="rounded-xl bg-slate-900/60 border border-slate-800 overflow-hidden">
+        <button onclick="toggleFaq(4)" class="w-full px-5 py-4 text-left flex justify-between items-center text-sm font-semibold text-white focus:outline-none">
+          <span>Is this a recurring subscription or a one-time purchase?</span>
+          <svg id="faq-icon-4" class="w-4 h-4 text-slate-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="faq-ans-4" class="px-5 pb-4 text-xs sm:text-sm text-slate-300 hidden leading-relaxed">
+          This is a 100% one-time payment of ₹399 during this early launch. There are zero monthly charges, zero hidden upsells, and you retain lifetime access including any future template version updates.
+        </div>
+      </div>
+
+      <!-- FAQ 5 -->
+      <div class="rounded-xl bg-slate-900/60 border border-slate-800 overflow-hidden">
+        <button onclick="toggleFaq(5)" class="w-full px-5 py-4 text-left flex justify-between items-center text-sm font-semibold text-white focus:outline-none">
+          <span>Can I access and edit this on my phone or iPad?</span>
+          <svg id="faq-icon-5" class="w-4 h-4 text-slate-400 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="faq-ans-5" class="px-5 pb-4 text-xs sm:text-sm text-slate-300 hidden leading-relaxed">
+          Yes! With Google Sheets, the template syncs instantaneously across your iPhone, Android, iPad, Mac, and Windows PC. Update your calendar anywhere in real time.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 border-t border-slate-800 text-center text-xs text-slate-400">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center space-x-2">
+        <img src="https://i.postimg.cc/kM0JvcR5/Logo.png" alt="@harss.raaj" class="w-6 h-6 rounded-full object-cover border border-brand-500">
+        <span class="font-extrabold text-white">@harss.raaj</span>
+        <span>• Content Calendar & Performance Growth Tracker</span>
+      </div>
+      <div>
+        <span>Early Launch Deal: ₹399 for first 1,000 creators. Standard price: ₹699.</span>
+      </div>
+      <div>
+        <a href="https://zorcha.link/harssraaj/products/content-calendar-growth-tracker-for-creators-excel-google-sh" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           class="text-brand-400 hover:underline">
+          Go To Secure Checkout →
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- STICKY BOTTOM BAR FOR MOBILE CONVERSION -->
+  <div class="fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800 p-3 sm:hidden shadow-2xl flex items-center justify-between">
+    <div>
+      <div class="flex items-baseline space-x-1.5">
+        <span class="text-lg font-black text-white">₹399</span>
+        <span class="line-through text-xs text-slate-500">₹699</span>
+      </div>
+      <span class="text-[10px] text-amber-400 font-semibold">⚡ <span id="mobile-spots">142</span> spots left at 399</span>
+    </div>
+
+    <a href="https://zorcha.link/harssraaj/products/content-calendar-growth-tracker-for-creators-excel-google-sh"
+       target="_blank"
+       rel="noopener noreferrer"
+       class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 text-white font-bold text-xs shadow-lg shadow-brand-600/30 flex items-center gap-1.5">
+      <span>Buy Now</span>
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+    </a>
+  </div>
+
+  <!-- LIVE FOMO RECENT BUYER TOAST POPUP -->
+  <div id="live-toast" class="fixed bottom-16 sm:bottom-6 left-4 z-50 transition-all duration-500 transform translate-y-32 opacity-0 max-w-xs">
+    <div class="glass-card bg-slate-900/90 border border-brand-500/40 p-3 rounded-xl shadow-2xl flex items-center space-x-3">
+      <div class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+      </div>
+      <div class="text-xs">
+        <p class="text-white font-medium"><span id="toast-name">Priya S.</span> from <span id="toast-city">Mumbai</span></p>
+        <p class="text-slate-400 text-[11px]">Just grabbed early launch access for <strong class="text-emerald-400">₹399</strong></p>
+      </div>
+      <button onclick="dismissToast()" class="text-slate-500 hover:text-slate-300 ml-auto text-xs p-1">✕</button>
+    </div>
+  </div>
+
+  <!-- CLIENT JAVASCRIPT LOGIC -->
+  <script>
+    // Tab switching logic for preview component
+    function switchTab(tabId) {
+      // Hide all contents
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      // Remove active classes
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-brand-600', 'text-white');
+        btn.classList.add('text-slate-400', 'bg-slate-900');
+      });
+
+      // Show selected tab content
+      const targetContent = document.getElementById('tab-' + tabId);
+      if (targetContent) targetContent.classList.remove('hidden');
+
+      // Highlight active button
+      const targetBtn = document.getElementById('btn-tab-' + tabId);
+      if (targetBtn) {
+        targetBtn.classList.remove('text-slate-400', 'bg-slate-900');
+        targetBtn.classList.add('bg-brand-600', 'text-white');
+      }
+    }
+
+    // FAQ Accordion Toggle
+    function toggleFaq(index) {
+      const ans = document.getElementById('faq-ans-' + index);
+      const icon = document.getElementById('faq-icon-' + index);
+      if (ans.classList.contains('hidden')) {
+        ans.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+      } else {
+        ans.classList.add('hidden');
+        icon.classList.remove('rotate-180');
+      }
+    }
+
+    // Interactive ROI Calculator Logic
+    function updateCalculator() {
+      const hours = parseInt(document.getElementById('hours-input').value, 10);
+      const rate = parseInt(document.getElementById('rate-input').value, 10);
+
+      document.getElementById('hours-val').textContent = hours + ' Hours';
+      document.getElementById('rate-val').textContent = '₹' + rate.toLocaleString('en-IN') + ' / hr';
+
+      // 4.33 weeks in a month
+      const monthlyWastedHours = Math.round(hours * 4.33);
+      const totalWastedRupees = monthlyWastedHours * rate;
+
+      document.getElementById('wasted-val').textContent = '₹' + totalWastedRupees.toLocaleString('en-IN');
+      document.getElementById('hours-saved').textContent = Math.round(monthlyWastedHours * 0.75) + '+ hours';
+    }
+
+    // Countdown Timer Logic (Realistic persistent timer)
+    let totalSeconds = 4 * 3600 + 18 * 60 + 45;
+    function runCountdown() {
+      if (totalSeconds <= 0) totalSeconds = 12 * 3600; // loop reset
+      totalSeconds--;
+
+      const hrs = Math.floor(totalSeconds / 3600);
+      const mins = Math.floor((totalSeconds % 3600) / 60);
+      const secs = totalSeconds % 60;
+
+      const format = num => String(num).padStart(2, '0');
+
+      document.getElementById('timer-hours').textContent = format(hrs);
+      document.getElementById('timer-minutes').textContent = format(mins);
+      document.getElementById('timer-seconds').textContent = format(secs);
+    }
+    setInterval(runCountdown, 1000);
+
+    // Realistic Live FOMO Claimed Spots Counter
+    let currentSold = 858;
+    const maxCapacity = 1000;
+
+    function tickNewSale() {
+      if (currentSold < 996) {
+        currentSold += 1;
+        const spotsLeft = maxCapacity - currentSold;
+        
+        // Update all counters on page
+        const buyersEl = document.getElementById('buyers-count');
+        const badgeEl = document.getElementById('spots-left-badge');
+        const pricingEl = document.getElementById('spots-left-pricing');
+        const mobileEl = document.getElementById('mobile-spots');
+        const progressFill = document.getElementById('progress-bar-fill');
+
+        if (buyersEl) buyersEl.textContent = currentSold;
+        if (badgeEl) badgeEl.textContent = spotsLeft;
+        if (pricingEl) pricingEl.textContent = spotsLeft + ' slots';
+        if (mobileEl) mobileEl.textContent = spotsLeft;
+        if (progressFill) progressFill.style.width = ((currentSold / maxCapacity) * 100).toFixed(1) + '%';
+      }
+    }
+
+    // Dynamic Live Purchase Toast simulation
+    const buyersPool = [
+      { name: "Priya S.", city: "Mumbai" },
+      { name: "Aditya V.", city: "Bengaluru" },
+      { name: "Kunal M.", city: "Delhi NCR" },
+      { name: "Ananya T.", city: "Pune" },
+      { name: "Rishabh K.", city: "Hyderabad" },
+      { name: "Tanvi P.", city: "Jaipur" },
+      { name: "Devansh G.", city: "Ahmedabad" }
+    ];
+
+    function showLiveToast() {
+      const toast = document.getElementById('live-toast');
+      const randomBuyer = buyersPool[Math.floor(Math.random() * buyersPool.length)];
+
+      document.getElementById('toast-name').textContent = randomBuyer.name;
+      document.getElementById('toast-city').textContent = randomBuyer.city;
+
+      // Reveal toast
+      toast.classList.remove('translate-y-32', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      // Tick buyer count
+      tickNewSale();
+
+      // Hide after 5 seconds
+      setTimeout(() => {
+        dismissToast();
+      }, 5000);
+    }
+
+    function dismissToast() {
+      const toast = document.getElementById('live-toast');
+      toast.classList.remove('translate-y-0', 'opacity-100');
+      toast.classList.add('translate-y-32', 'opacity-0');
+    }
+
+    // Trigger toast periodically
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(showLiveToast, 3500);
+      setInterval(showLiveToast, 28000);
+    });
+  </script>
+</body>
+</html>
